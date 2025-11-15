@@ -29,6 +29,13 @@ Clone the repository:
     git clone git@github.com:wiltonmiller/csc311-2025-group35900.git
     cd csc311-2025-group35900
 
+## Environment Setup
+
+Create and activate a virtual environment:
+
+    python3 -m venv venv
+    source venv/bin/activate
+
 Install dependencies:
 
     pip install -r requirements.txt
