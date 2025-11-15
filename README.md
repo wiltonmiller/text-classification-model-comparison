@@ -29,7 +29,7 @@ Clone the repository:
     git clone git@github.com:wiltonmiller/csc311-2025-group35900.git
     cd csc311-2025-group35900
 
-Install dependencies (requirements.txt will be added when finalized):
+Install dependencies:
 
     pip install -r requirements.txt
 
