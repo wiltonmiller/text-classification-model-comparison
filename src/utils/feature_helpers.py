@@ -20,6 +20,7 @@ def vectorize_text(df):
         feature_names = tfidf.get_feature_names_out()
         feature_names = np.char.add(f"{column}_", feature_names)
         X_df = pd.DataFrame(result.toarray(), columns=feature_names)
+        X_df = X_df.round(4)
         df = pd.concat(
             [df.drop([column], axis=1),
             X_df],
