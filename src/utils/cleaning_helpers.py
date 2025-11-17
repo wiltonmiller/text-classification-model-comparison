@@ -26,19 +26,6 @@ def rename_columns(df):
     print("Columns have been renamed.")
     return df
 
-def fill_na_text(df):
-    print("------------------\nSTARTING NA FILLING FOR TEXT COLUMNS\n------------------")
-    columns_to_fill = {
-        'tasks_used_for',
-        'suboptimal_response_details',
-        'verification_method'
-    }
-    for column in columns_to_fill:
-        df.fillna({column:""}, inplace=True)
-        print(f"Completed cleaning column {column}.")
-    
-    print("------------------\nCOMPLETED NA FILLING FOR TEXT COLUMNS\n------------------")
-    return df
 
 def fill_na_frequency(df):
     print("------------------\nSTARTING NA FILLING FOR FREQUENCY COLUMNS\n------------------")
