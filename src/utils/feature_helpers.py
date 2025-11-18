@@ -3,31 +3,41 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-def vectorize_text(df):
+def vectorize_text(train_df, test_df):
     text_cols = ['tasks_used_for','suboptimal_response_details','verification_method']
     #have to remove na again because converting to csv resets it
-    df[text_cols] = df[text_cols].fillna("").astype(str)
+    train_df[text_cols] = train_df[text_cols].fillna("").astype(str)
+    test_df[text_cols] = test_df[text_cols].fillna("").astype(str)
+
     text_columns = {
         'tasks_used_for',
         'suboptimal_response_details',
         'verification_method'
     }
-
     
     for column in text_columns:
         tfidf = TfidfVectorizer(min_df=3)
-        result = tfidf.fit_transform(df[column])
+        train_result = tfidf.fit_transform(train_df[column])
+        test_result = tfidf.transform(test_df[column])
         feature_names = tfidf.get_feature_names_out()
         feature_names = np.char.add(f"{column}_", feature_names)
-        X_df = pd.DataFrame(result.toarray(), columns=feature_names)
-        X_df = X_df.round(4)
-        df = pd.concat(
-            [df.drop([column], axis=1),
-            X_df],
+        train_X_df = pd.DataFrame(train_result.toarray(), columns=feature_names)
+        train_X_df = train_X_df.round(4)
+        train_df = pd.concat(
+            [train_df.drop([column], axis=1),
+            train_X_df],
+            axis=1
+        )
+
+        test_X_df = pd.DataFrame(test_result.toarray(), columns=feature_names)
+        test_X_df = test_X_df.round(4)
+        test_df = pd.concat(
+            [test_df.drop([column], axis=1),
+            test_X_df],
             axis=1
         )
         print(f"Completed TF IDF processing for column {column}.")
-    return df
+    return train_df, test_df
 
 
 def normalize_numeric(df):

@@ -5,7 +5,7 @@ import os
 from ..utils import feature_helpers
 
 
-def extract_features(df):
+def extract_features(train_df, test_df):
     '''
     Extract features from cleaned dataframe
     
@@ -17,19 +17,19 @@ def extract_features(df):
     numpy.ndarray
         Array of extracted features
     '''
-    features = df.drop(['label'], axis=1)
+    train_features, test_features = train_df.drop(['label'], axis=1), test_df.drop(['label'], axis=1)
 
     #convert text columns to tf idf vectors
-    features = feature_helpers.vectorize_text(features)
+    train_features, test_features = feature_helpers.vectorize_text(train_features, test_features)
 
     #normalise numeric columns to [0,1]
-    features = feature_helpers.normalize_numeric(features)
+    train_features, test_features = feature_helpers.normalize_numeric(train_features), feature_helpers.normalize_numeric(test_features)
 
     #convert select all to binary indicators
-    features = feature_helpers.encode_select_all(features)
+    train_features, test_features = feature_helpers.encode_select_all(train_features), feature_helpers.encode_select_all(test_features)
 
 
-    return features
+    return train_features, test_features
 
 def extract_labels(df):
     '''
@@ -71,20 +71,23 @@ def save_to_npy(features, path):
 
 if __name__ == "__main__":
     
-    clean_data_path = "data/clean/training_data_clean.csv"
-    features_output_path_csv = "src/data/processed/features.csv"
-    features_output_path_npy = "src/data/processed/features.npy"
-    labels_output_path_csv = "src/data/processed/labels.csv"
-    labels_output_path_npy = "src/data/processed/labels.npy"
-    df_cleaned = pd.read_csv(clean_data_path)
+    clean_training_data_path = "data/clean/training_data_clean.csv"
+    clean_testing_data_path = "data/clean/testing_data_clean.csv"
+    training_features_output_path_npy = "src/data/processed/training_features.npy"
+    testing_features_output_path_npy = "src/data/processed/testing_features.npy"
+    training_labels_output_path_npy = "src/data/processed/training_labels.npy"
+    testing_labels_output_path_npy = "src/data/processed/testing_labels.npy"
+    train_cleaned = pd.read_csv(clean_training_data_path)
+    test_cleaned = pd.read_csv(clean_testing_data_path)
     
     # Extract and save features
-    features = extract_features(df_cleaned)
-    labels = extract_labels(df_cleaned)
+    train_features, test_features = extract_features(train_cleaned,test_cleaned)
+    train_labels, test_labels = extract_labels(train_cleaned), extract_labels(test_cleaned)
     
-    save_to_npy(features.to_numpy(), features_output_path_npy)
-    features.to_csv(features_output_path_csv, index=False)
+    save_to_npy(train_features.to_numpy(), training_features_output_path_npy)
+    save_to_npy(test_features.to_numpy(), testing_features_output_path_npy)
 
-    save_to_npy(labels.to_numpy(), labels_output_path_npy)
-    labels.to_csv(labels_output_path_csv, index=False)
+    save_to_npy(train_labels.to_numpy(), training_labels_output_path_npy)
+    save_to_npy(test_labels.to_numpy(), testing_labels_output_path_npy)
+    
     print("Feature extraction successful")

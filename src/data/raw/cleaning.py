@@ -28,26 +28,30 @@ Returns:
 pandas.DataFrame
     Cleaned dataframe object
 '''
-def clean_data(df):
+def clean_data(train_df, test_df):
 
     #rename columns
-    df = cleaning_helpers.rename_columns(df)
+    train_df = cleaning_helpers.rename_columns(train_df)
+    test_df = cleaning_helpers.rename_columns(test_df)
 
-    #fill empty values
-    df = cleaning_helpers.fill_na_text(df)
-    
-    
+    #clear na
+    train_df = cleaning_helpers.fill_na_text(train_df)
+    test_df = cleaning_helpers.fill_na_text(test_df)
+
     #clean text(punctuation, lowercase, remove [model], lemmatize)
-    df = cleaning_helpers.clean_text(df)
+    train_df = cleaning_helpers.clean_text(train_df)
+    test_df = cleaning_helpers.clean_text(test_df)
     
     #fill empty values
-    df = cleaning_helpers.fill_na_frequency(df)
+    train_df, test_df = cleaning_helpers.fill_na_frequency(train_df, test_df)
+    
 
 
     #convert number scale to numbers
-    df = cleaning_helpers.strip_frequencies(df)
-
-    return df
+    train_df = cleaning_helpers.strip_frequencies(train_df)
+    test_df = cleaning_helpers.strip_frequencies(test_df)
+    train_df, test_df = train_df.drop(['student_id'], axis=1), test_df.drop(['student_id'], axis=1)
+    return train_df, test_df
 
 
 
@@ -67,14 +71,35 @@ def save_data(df, path):
     df.to_csv(path, index=False)
 
 
+def split_data(df):
+    unique_ids = df['student_id'].drop_duplicates().tolist()
+
+    # 2. Determine split index
+    split_idx = int(len(unique_ids) * 0.8)
+
+    # 3. Split student IDs
+    train_ids = unique_ids[:split_idx]
+    test_ids  = unique_ids[split_idx:]
+
+    # 4. Assign rows to train/test based on student_id
+    train_df = df[df['student_id'].isin(train_ids)]
+    test_df  = df[df['student_id'].isin(test_ids)]
+    return train_df, test_df
 
 
 if __name__ == "__main__":
+
+    
     raw_data_path = "data/raw/training_data.csv"
-    clean_data_path = "data/clean/training_data_clean.csv"
+    clean_data_path_train = "data/clean/training_data_clean.csv"
+    clean_data_path_test = "data/clean/testing_data_clean.csv"
     df_raw = load_data(raw_data_path)
-    df_cleaned = clean_data(df_raw)
-    save_data(df_cleaned, clean_data_path)
+    #split the data
+    train_raw, test_raw = split_data(df_raw)
+
+    train_cleaned, test_cleaned = clean_data(train_raw, test_raw)
+    save_data(train_cleaned, clean_data_path_train)
+    save_data(test_cleaned, clean_data_path_test)
     print("Data cleaning successful")
 
 

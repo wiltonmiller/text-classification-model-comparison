@@ -27,7 +27,7 @@ def rename_columns(df):
     return df
 
 
-def fill_na_frequency(df):
+def fill_na_frequency(train_df, test_df):
     print("------------------\nSTARTING NA FILLING FOR FREQUENCY COLUMNS\n------------------")
     columns_to_fill = {
         'likelihood_academic',
@@ -36,12 +36,30 @@ def fill_na_frequency(df):
         'frequency_verification'
     }
     for column in columns_to_fill:
+        mode = train_df[column].mode()[0]
         #Fill blanks with the mode of that column
-        df.fillna({column:df[column].mode()[0]}, inplace=True)
+        train_df.fillna({column:mode}, inplace=True)
+        test_df.fillna({column:mode}, inplace=True)
+
         print(f"Completed cleaning column {column}.")
     
     print("------------------\nCOMPLETED NA FILLING FOR FREQUENCY COLUMNS\n------------------")
+    return train_df, test_df
+
+def fill_na_text(df):
+    print("------------------\nSTARTING NA FILLING FOR TEXT COLUMNS\n------------------")
+    columns_to_fill = {
+        'tasks_used_for',
+        'suboptimal_response_details',
+        'verification_method'
+    }
+    for column in columns_to_fill:
+        df.fillna({column:""}, inplace=True)
+        print(f"Completed cleaning column {column}.")
+    
+    print("------------------\nCOMPLETED NA FILLING FOR TEXT COLUMNS\n------------------")
     return df
+
 
 def clean_text(df):
     print("------------------\nSTARTING TEXT CLEANING\n------------------")
