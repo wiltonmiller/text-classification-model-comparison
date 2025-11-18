@@ -71,12 +71,12 @@ def save_to_npy(features, path):
 
 if __name__ == "__main__":
     
-    clean_training_data_path = "data/clean/training_data_clean.csv"
-    clean_testing_data_path = "data/clean/testing_data_clean.csv"
-    training_features_output_path_npy = "src/data/processed/training_features.npy"
-    testing_features_output_path_npy = "src/data/processed/testing_features.npy"
-    training_labels_output_path_npy = "src/data/processed/training_labels.npy"
-    testing_labels_output_path_npy = "src/data/processed/testing_labels.npy"
+    clean_training_data_path = "data/cleaned/training_data_clean.csv"
+    clean_testing_data_path = "data/cleaned/testing_data_clean.csv"
+    training_features_output_path_npy = "data/processed/training_features.npy"
+    testing_features_output_path_npy = "data/processed/testing_features.npy"
+    training_labels_output_path_npy = "data/processed/training_labels.npy"
+    testing_labels_output_path_npy = "data/processed/testing_labels.npy"
     train_cleaned = pd.read_csv(clean_training_data_path)
     test_cleaned = pd.read_csv(clean_testing_data_path)
     

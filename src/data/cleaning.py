@@ -1,5 +1,5 @@
 import pandas as pd
-from ...utils import cleaning_helpers
+from ..utils import cleaning_helpers
 
 
 '''
@@ -91,8 +91,8 @@ if __name__ == "__main__":
 
     
     raw_data_path = "data/raw/training_data.csv"
-    clean_data_path_train = "data/clean/training_data_clean.csv"
-    clean_data_path_test = "data/clean/testing_data_clean.csv"
+    clean_data_path_train = "data/cleaned/training_data_clean.csv"
+    clean_data_path_test = "data/cleaned/testing_data_clean.csv"
     df_raw = load_data(raw_data_path)
     #split the data
     train_raw, test_raw = split_data(df_raw)
