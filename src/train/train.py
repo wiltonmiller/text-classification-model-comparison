@@ -40,15 +40,13 @@ tree_grid = {
 # MLP hyperparameters
 mlp_grid = {
     "hidden_layer_sizes": [
-        (128,), 
-        (256,), 
-        (128, 64),
-        (256, 128),
-        (256, 128, 64)  
+        (64,),
+        (128,),
+        (128, 64)
     ],
     "alpha": [1e-5, 1e-4, 1e-3],
-    "batch_size": [32, 64],
-    "max_iter": [400, 600]
+    "batch_size": [64],
+    "max_iter": [300]
 }
 
 # 3. setup cross validation

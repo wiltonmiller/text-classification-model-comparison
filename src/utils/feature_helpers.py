@@ -19,7 +19,9 @@ def vectorize_text(train_df, test_df):
     }
     
     for column in text_columns:
-        tfidf = TfidfVectorizer(min_df=3)
+        tfidf = tfidf = TfidfVectorizer(
+                            min_df=3,
+                            ngram_range=(1, 2))
         vectorizers[column] = tfidf
         train_result = tfidf.fit_transform(train_df[column])
         test_result = tfidf.transform(test_df[column])
