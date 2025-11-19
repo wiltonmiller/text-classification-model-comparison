@@ -20,7 +20,7 @@ def vectorize_text(train_df, test_df):
     
     for column in text_columns:
         tfidf = tfidf = TfidfVectorizer(
-                            min_df=3,
+                            min_df=2,
                             ngram_range=(1, 2))
         vectorizers[column] = tfidf
         train_result = tfidf.fit_transform(train_df[column])
