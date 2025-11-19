@@ -8,9 +8,9 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
 
 # model families
-from train.models.logreg_model import train_logreg, extract_parameters as extract_logreg
-from train.models.tree_model import train_tree, extract_parameters as extract_tree
-from train.models.mlp_model import train_mlp, extract_parameters as extract_mlp
+from .models.logreg_model import train_logreg, extract_parameters as extract_logreg
+from .models.tree_model import train_tree, extract_parameters as extract_tree
+from .models.mlp_model import train_mlp, extract_parameters as extract_mlp
 
 # 1. load training and test arrays
 
@@ -125,15 +125,15 @@ scores["mlp"] = f1_score(y_test, mlp_pred, average="macro")
 best_model_type = max(scores, key=scores.get)
 print(f"Best overall model: {best_model_type}\n")
 
-if best_model_type == "logreg":
+if best_model_type == "logistic_regression":
     best_model = logreg_model
     parameters = extract_logreg(best_model)
 
-elif best_model_type == "tree":
+elif best_model_type == "decision_tree":
     best_model = tree_model
     parameters = extract_tree(best_model)
 
-else:
+else: 
     best_model = mlp_model
     parameters = extract_mlp(best_model)
 

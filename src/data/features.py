@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
 import os
 from ..utils import feature_helpers
 import pickle, json
@@ -49,16 +49,13 @@ def extract_labels(df):
     numpy.ndarray
         Array of extracted labels
     '''
-    encoder = OneHotEncoder(sparse_output=False)
+    encoder = LabelEncoder()
 
-    label_encoded = encoder.fit_transform(df[['label']])
+    label_encoded = encoder.fit_transform(df['label'])
 
-    feature_names = encoder.get_feature_names_out(['label'])
-    # Result: ['label_ChatGPT', 'label_Claude', 'label_Gemini']
+    label_df = pd.DataFrame(label_encoded, columns=['label'])
 
-    label_df = pd.DataFrame(label_encoded, columns=feature_names)
-    return label_df, encoder.categories_[0].tolist()
-
+    return label_df, encoder.classes_.tolist()
 
 def save_to_npy(features, path):
     '''
