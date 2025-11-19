@@ -9,6 +9,9 @@ def vectorize_text(train_df, test_df):
     train_df[text_cols] = train_df[text_cols].fillna("").astype(str)
     test_df[text_cols] = test_df[text_cols].fillna("").astype(str)
 
+    # TF IDF Vectorization to be saved
+    vectorizers = {}
+
     text_columns = {
         'tasks_used_for',
         'suboptimal_response_details',
@@ -17,6 +20,7 @@ def vectorize_text(train_df, test_df):
     
     for column in text_columns:
         tfidf = TfidfVectorizer(min_df=3)
+        vectorizers[column] = tfidf
         train_result = tfidf.fit_transform(train_df[column])
         test_result = tfidf.transform(test_df[column])
         feature_names = tfidf.get_feature_names_out()
@@ -37,7 +41,8 @@ def vectorize_text(train_df, test_df):
             axis=1
         )
         print(f"Completed TF IDF processing for column {column}.")
-    return train_df, test_df
+    # need to also return the vectorizers to use later on test data
+    return train_df, test_df, vectorizers
 
 
 def normalize_numeric(df):
@@ -64,6 +69,8 @@ def encode_select_all(df):
         "best_tasks_selected",
         "suboptimal_tasks_selected",
     }
+    
+    schema = {}
 
     for column in select_all_columns:
         df[column] = df[column].str.replace(r"\([^)]*\)", "", regex=True)
@@ -77,9 +84,15 @@ def encode_select_all(df):
             encoded_columns],
             axis=1
         )
+        # update schema with new columns
+        if column not in schema:
+            schema[column] = encoded_columns.columns.tolist()
+
         print(f"Completed encoding of column {column}.")
     print ("Completed select all encoding.")
-    return df
+
+    # return the schema for later use
+    return df, schema
     
         
         

@@ -1,0 +1,22 @@
+{
+  "best_tasks_selected": [
+    "best_tasks_selected_brainstorming_or_generating_creative_ideas",
+    "best_tasks_selected_converting_content_between_formats_",
+    "best_tasks_selected_data_processing_or_analysis",
+    "best_tasks_selected_drafting_professional_text_",
+    "best_tasks_selected_explaining_complex_concepts_simply",
+    "best_tasks_selected_math_computations",
+    "best_tasks_selected_writing_or_debugging_code",
+    "best_tasks_selected_writing_or_editing_essays_reports"
+  ],
+  "suboptimal_tasks_selected": [
+    "suboptimal_tasks_selected_brainstorming_or_generating_creative_ideas",
+    "suboptimal_tasks_selected_converting_content_between_formats_",
+    "suboptimal_tasks_selected_data_processing_or_analysis",
+    "suboptimal_tasks_selected_drafting_professional_text_",
+    "suboptimal_tasks_selected_explaining_complex_concepts_simply",
+    "suboptimal_tasks_selected_math_computations",
+    "suboptimal_tasks_selected_writing_or_debugging_code",
+    "suboptimal_tasks_selected_writing_or_editing_essays_reports"
+  ]
+}
