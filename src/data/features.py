@@ -91,8 +91,8 @@ if __name__ == "__main__":
     save_to_npy(test_features.to_numpy(), testing_features_output_path_npy)
     test_labels, _ = extract_labels(test_cleaned)
 
-    save_to_npy(train_labels.to_numpy(), training_labels_output_path_npy)
-    save_to_npy(test_labels.to_numpy(), testing_labels_output_path_npy)
+    save_to_npy(train_labels['label'].to_numpy(), training_labels_output_path_npy)
+    save_to_npy(test_labels['label'].to_numpy(), testing_labels_output_path_npy)
 
     # save processing objects for later use
     # TF-IDF vectorizers
