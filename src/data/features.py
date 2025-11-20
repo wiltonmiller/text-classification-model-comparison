@@ -84,7 +84,7 @@ def serialize_tfidf_vectorizer(vec):
         "min_df": vec.min_df,
         "lowercase": vec.lowercase,
         "token_pattern": vec.token_pattern,
-        "stop_words": list(vec.stop_words_) if vec.stop_words_ is not None else None,
+        "stop_words": vec.stop_words,
         "norm": vec.norm,
         "use_idf": vec.use_idf,
         "smooth_idf": vec.smooth_idf,
