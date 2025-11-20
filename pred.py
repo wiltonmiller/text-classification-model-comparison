@@ -41,3 +41,7 @@ def accuracy_on_file(filename):
     acc = np.mean(true_labels[mask] == preds[mask])
     print(f"Accuracy: {acc*100:.2f}%")
     return acc
+
+if __name__ == "__main__":
+    preds = predict_all("data/raw/training_data.csv")
+    print(preds)

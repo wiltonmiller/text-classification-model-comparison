@@ -1,11 +1,10 @@
 import pandas as pd
 import numpy as np
 import json
-import pickle
 import re
 
 
-def load_model_params(path="models/best_model_params.json"):
+def load_model_params(path="best_model_params.json"):
     with open(path, "r") as f:
         params = json.load(f)
 
@@ -15,7 +14,7 @@ def load_model_params(path="models/best_model_params.json"):
     return W, B, class_ids
 
 
-def load_label_classes(path="models/label_classes.json"):
+def load_label_classes(path="label_classes.json"):
     with open(path, "r") as f:
         return json.load(f)   # e.g. ["ChatGPT", "Claude", "Gemini"]
 
@@ -92,11 +91,107 @@ def clean_dataframe(df_raw):
 
     return df
 
+def load_vectorizers_json(path="vectorizers.json"):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def simple_tokenize(text):
+    text = str(text).lower()
+    text = re.sub(r"[^a-z\s]", " ", text)
+    return text.split()
+
+
+def build_unigram_bigram_tokens(text):
+    tokens = simple_tokenize(text)
+    bigrams = [tokens[i] + " " + tokens[i+1] for i in range(len(tokens)-1)]
+    return tokens + bigrams
+
+
+def tfidf_from_json(series, vec_info):
+    vocab = vec_info["vocabulary"]      # word -> index
+    idf = np.array(vec_info["idf"])     # shape (n_features,)
+
+    n_samples = len(series)
+    n_features = len(idf)
+    X_counts = np.zeros((n_samples, n_features))
+
+    for i, text in enumerate(series):
+        toks = build_unigram_bigram_tokens(text)
+        for tok in toks:
+            idx = vocab.get(tok)
+            if idx is not None:
+                X_counts[i, idx] += 1.0
+
+    # term frequency
+    row_sums = np.sum(X_counts, axis=1, keepdims=True)
+    row_sums[row_sums == 0] = 1.0
+    tf = X_counts / row_sums
+
+    # tfidf = tf * idf
+    tfidf = tf * idf
+
+    # L2 normalization
+    norms = np.linalg.norm(tfidf, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0
+    tfidf = tfidf / norms
+
+    return tfidf
+
+
+def make_tfidf_df(series, col_name, vec_info):
+    vocab = vec_info["vocabulary"]
+    # invert vocab idx->token
+    inv_vocab = {idx: tok for tok, idx in vocab.items()}
+
+    # order tokens by index 0..n_features-1
+    ordered_tokens = [inv_vocab[i] for i in range(len(inv_vocab))]
+
+    X_tfidf = tfidf_from_json(series, vec_info)
+
+    colnames = [f"{col_name}_{tok}" for tok in ordered_tokens]
+    return pd.DataFrame(X_tfidf, columns=colnames)
+
+
+def encode_select_all(df, schema):
+    for base_col, output_cols in schema.items():
+
+        encoded = pd.DataFrame(0, index=df.index, columns=output_cols)
+
+        raw = df[base_col].fillna("").astype(str)
+
+        for i, val in raw.items():
+            cleaned = re.sub(r"\([^)]*\)", "", val)
+            cleaned = cleaned.replace(" ", "_").lower().replace("/", "_")
+            pieces = [p.strip() for p in cleaned.split(",") if p.strip()]
+
+            for p in pieces:
+                colname = f"{base_col}_{p}"
+                if colname in encoded.columns:
+                    encoded.at[i, colname] = 1
+
+        df = df.drop(columns=[base_col])
+        df = pd.concat([df, encoded], axis=1)
+
+    return df
+
+
+def normalize_numeric(df):
+    norm_cols = [
+        "likelihood_academic",
+        "frequency_suboptimal",
+        "frequency_expected_refs",
+        "frequency_verification",
+    ]
+    for c in norm_cols:
+        df[c] = (df[c].astype(float) - 1.0) / 4.0
+    return df
+
 
 def extract_features(df_clean):
+
     # Load artifacts saved during training
-    with open("models/vectorizers.pkl", "rb") as f:
-        vectorizers = pickle.load(f)
+    vectorizers = load_vectorizers_json("models/vectorizers.json")
 
     with open("models/categorical_columns.json", "r") as f:
         select_all_schema = json.load(f)
@@ -106,57 +201,28 @@ def extract_features(df_clean):
 
     df = df_clean.copy()
 
-    # Remove label if present
+    # Remove label for prediction
     if "label" in df.columns:
         df = df.drop(columns=["label"])
 
-    # TF–IDF for text columns
-    text_cols = ["tasks_used_for", "suboptimal_response_details", "verification_method"]
-    for col in text_cols:
-        if col not in df.columns:
-            continue
-        vec = vectorizers[col]
-        transformed = vec.transform(df[col].astype(str))
-        fnames = vec.get_feature_names_out()
-        fnames = np.char.add(f"{col}_", fnames)
-        tfidf_df = pd.DataFrame(transformed.toarray(), columns=fnames)
-        df = pd.concat([df.drop(columns=[col]), tfidf_df], axis=1)
-
-    # Normalize numeric frequency columns to [0,1]
-    freq_cols = [
-        "likelihood_academic",
-        "frequency_suboptimal",
-        "frequency_expected_refs",
-        "frequency_verification"
-    ]
-    for col in freq_cols:
-        if col in df.columns:
-            df[col] = (df[col] - 1) / 4
+    # Normalize numeric frequencies
+    df = normalize_numeric(df)
 
     # Encode select-all columns
-    select_cols = ["best_tasks_selected", "suboptimal_tasks_selected"]
-    for col in select_cols:
-        if col not in df.columns:
-            continue
-        df[col] = df[col].fillna("").astype(str)
-        df[col] = df[col].str.replace(r"\([^)]*\)", "", regex=True)
-        df[col] = df[col].str.replace(" ", "_")
-        df[col] = df[col].str.lower()
-        df[col] = df[col].str.replace("/", "_")
+    df = encode_select_all(df, select_all_schema)
 
-        dummies = df[col].str.get_dummies(sep=",").add_prefix(f"{col}_")
-        df = pd.concat([df.drop(columns=[col]), dummies], axis=1)
+    # Manual TF–IDF for each text column
+    text_cols = ["tasks_used_for", "suboptimal_response_details", "verification_method"]
 
-        # Ensure full schema exists
-        if col in select_all_schema:
-            for expected in select_all_schema[col]:
-                if expected not in df:
-                    df[expected] = 0
+    for col in text_cols:
+        vec_info = vectorizers[col]
+        tfidf_df = make_tfidf_df(df[col], col, vec_info)
+        df = pd.concat([df.drop(columns=[col]), tfidf_df], axis=1)
 
-    # Align columns to training order
+    # Add missing columns & order correctly
     for col in feature_order:
-        if col not in df:
-            df[col] = 0
+        if col not in df.columns:
+            df[col] = 0.0
 
     df = df[feature_order]
 
