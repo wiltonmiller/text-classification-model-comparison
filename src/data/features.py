@@ -72,6 +72,25 @@ def save_to_npy(features, path):
     print(f"Data saved to {path}")
 
 
+def serialize_tfidf_vectorizer(vec):
+    """
+    Serialize a TF-IDF vectorizer to a dictionary. So that parameters can be used
+    in part C without needing to use sklearn.
+    """
+    return {
+        "vocabulary": vec.vocabulary_,
+        "idf": vec.idf_.tolist(),
+        "ngram_range": vec.ngram_range,
+        "min_df": vec.min_df,
+        "lowercase": vec.lowercase,
+        "token_pattern": vec.token_pattern,
+        "stop_words": list(vec.stop_words_) if vec.stop_words_ is not None else None,
+        "norm": vec.norm,
+        "use_idf": vec.use_idf,
+        "smooth_idf": vec.smooth_idf,
+        "sublinear_tf": vec.sublinear_tf,
+    }
+
 if __name__ == "__main__":
     
     clean_training_data_path = "data/cleaned/training_data_clean.csv"
@@ -95,9 +114,15 @@ if __name__ == "__main__":
     save_to_npy(test_labels['label'].to_numpy(), testing_labels_output_path_npy)
 
     # save processing objects for later use
-    # TF-IDF vectorizers
-    with open("models/vectorizers.pkl", "wb") as f:
-        pickle.dump(vectorizers, f)
+
+    # json TF-IDF
+    tfidf_json = {
+        col: serialize_tfidf_vectorizer(vec)
+        for col, vec in vectorizers.items()
+    }
+
+    with open("models/vectorizers.json", "w") as f:
+        json.dump(tfidf_json, f, indent=2)
 
     # schema for one-hot columns
     with open("models/categorical_columns.json", "w") as f:
