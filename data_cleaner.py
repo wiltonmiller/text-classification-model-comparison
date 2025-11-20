@@ -141,15 +141,19 @@ def tfidf_from_json(series, vec_info):
 
 def make_tfidf_df(series, col_name, vec_info):
     vocab = vec_info["vocabulary"]
-    # invert vocab idx->token
-    inv_vocab = {idx: tok for tok, idx in vocab.items()}
+    idf = np.array(vec_info["idf"])
 
-    # order tokens by index 0..n_features-1
-    ordered_tokens = [inv_vocab[i] for i in range(len(inv_vocab))]
-
+    # Correct index ordering
+    n_features = len(idf)
+    ordered_tokens = [None] * n_features
+    for tok, idx in vocab.items():
+        ordered_tokens[idx] = tok
+    # Build TF-IDF matrix
     X_tfidf = tfidf_from_json(series, vec_info)
 
+    # Create column names in the correct order
     colnames = [f"{col_name}_{tok}" for tok in ordered_tokens]
+
     return pd.DataFrame(X_tfidf, columns=colnames)
 
 
