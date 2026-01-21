@@ -7,7 +7,7 @@ The project was initally developed as a CSC311 final group project and has been 
 ## Report
 
 📄 **Technical report (PDF):**  
-[Project_Report.pdf](report/Project_Report.pdf)
+[Project_Report.pdf](report/Project_Report_CSC311.pdf)
 
 ## Repository Structure
 
