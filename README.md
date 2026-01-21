@@ -1,6 +1,6 @@
 # End-to-End Text Classification Pipeline
 
-This repository contains a complete machine learning workflow for multiclass text classification, including data cleaning, feature engineering (TF–IDF), model training, cross-validation, and evaluation.
+This repo contains a complete machine learning workflow for multiclass text classification, including data cleaning, feature engineering (TF–IDF), model training, cross-validation, and evaluation.
 
 The project was originally developed as a CSC311 final group project and has been repackaged for public release with an emphasis on clarity, reproducibility, and clean structure.
 
