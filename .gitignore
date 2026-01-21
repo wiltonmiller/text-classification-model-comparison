@@ -1,7 +1,19 @@
-# Python cache
+# environments
+venv/
+.venv/
 __pycache__/
 *.pyc
 
-# macOS junk
-.DS_Store
+# data
+data/
+*.csv
+*.npy
+*.npz
 
+# outputs
+results/
+runs/
+wandb/
+
+# OS
+.DS_Store
