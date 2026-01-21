@@ -1,4 +1,4 @@
-# End-to-End Text Classification Pipeline
+# Text Classification Pipeline
 
 This repo contains a complete machine learning workflow for a multiclass text classification problem, including data cleaning, feature engineering (TF–IDF), model training, cross-validation, and evaluation.
 
